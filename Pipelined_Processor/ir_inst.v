@@ -33,7 +33,7 @@ module ir_inst(
 	assign inst_out[(`BUS_WIDTH-1):0] = inst[(`BUS_WIDTH-1):0];
 	
 	//combinational logic
-	always @ (negedge clk) begin
+	always @ (posedge clk) begin
 		//check if reset is asserted and reset design
 		if (rst_ir == 1'b1)
 		begin
