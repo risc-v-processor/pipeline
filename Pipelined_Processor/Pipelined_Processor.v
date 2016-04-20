@@ -253,8 +253,7 @@ module Pipelined_Processor(
 		
 	//connect output of pc1 mux to input of PC block	
 	assign next_addr_t = pc_mux1_Out_t;
-	
-	//....................From Here...........................................**********************
+
 	
 	//Implementation of Data Memory module
 	wire [(`BUS_WIDTH-1):0] d_mem_rd_data_t;
