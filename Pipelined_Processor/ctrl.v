@@ -41,6 +41,7 @@ module ctrl(
 	LUI : 5'b11000
 	JALR : 5'b11001
 	*/
+	//input rst,
 	output reg [(`ALU_CTRL_WIDTH-1):0] alu_ctrl,
 	//Register file write enable signal
 	output reg reg_file_wr_en,
@@ -87,6 +88,21 @@ module ctrl(
 	//combinational logic
 	always @ (*) begin
 		//first check if the input instruction is valid
+		/*if(rst==1)
+		  begin
+			alu_ctrl=5'bx;
+			reg_file_wr_en=1'b0;		
+			reg_file_wr_back_sel=2'bx;
+			alu_op2_sel=1'bx;
+			d_mem_wr_en=1'b0;
+			d_mem_sz_ex=1'bx;
+			d_mem_size=2'bx;
+			jal=1'b0;
+			jalr=1'b0;
+			ctrl_rst=1'b0;
+		  end
+		  else*/
+		  //begin
 		if (inst[1:0] == 2'b11) begin
 			//determine the type of instruction
 			case (inst[6:2])
@@ -450,7 +466,6 @@ module ctrl(
 			//not valid
 			jalr = 1'b0;
 		end
-	
+	 //end
 	end
-
 endmodule

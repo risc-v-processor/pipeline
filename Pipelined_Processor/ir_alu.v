@@ -1,7 +1,6 @@
-
-module ir_alu(
-    input clk,
+module ir_alu(input clk,
     input rst_ir,
+	 input rst,
     input [4:0] alu_ctrl_in,
 	 input alu_op2_sel_in,
 	 input [31:0] op1_in,
@@ -37,6 +36,14 @@ module ir_alu(
 			sz_alu_reg<=32'b0;
 		end
 		
+		else if(rst)
+		begin
+			alu_ctrl_reg<=5'bx;
+			alu_op2_sel_reg<=1'bx;
+			op1_reg<=32'b0;
+			op2_reg<=32'b0;
+			sz_alu_reg<=32'b0;
+		end
 		else
 		begin
 			alu_ctrl_reg<=alu_ctrl_in;

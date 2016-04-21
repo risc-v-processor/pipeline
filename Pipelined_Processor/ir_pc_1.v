@@ -1,7 +1,7 @@
-
 module ir_pc_1(
     input clk,
     input rst_ir,
+	 input rst,
     input [31:0] pc_in,
     output [31:0] pc_out
     );
@@ -14,7 +14,10 @@ module ir_pc_1(
 	begin
 		if(rst_ir)
 			ir_pc_reg<=0;
-		
+			
+		else if(rst)
+			ir_pc_reg<=0;
+			
 		else
 			ir_pc_reg<=pc_in;
 	end

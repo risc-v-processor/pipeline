@@ -19,6 +19,7 @@ module ir_inst(
 	input clk,
 	//reset
 	input rst_ir,
+	input rst,
 	//instruction input
 	input [(`BUS_WIDTH-1):0] inst_in
 );
@@ -33,9 +34,14 @@ module ir_inst(
 	assign inst_out[(`BUS_WIDTH-1):0] = inst[(`BUS_WIDTH-1):0];
 	
 	//combinational logic
-	always @ (negedge clk) begin
+	always @ (posedge clk) begin
 		//check if reset is asserted and reset design
-		if (rst_ir == 1'b1)
+		if (rst_ir)
+		begin
+			inst <= 32'b0;
+		end
+		
+		else if (rst)
 		begin
 			inst <= 32'b0;
 		end

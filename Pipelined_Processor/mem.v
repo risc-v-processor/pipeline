@@ -101,19 +101,24 @@ module mem(
 	
 	//sequential logic
 	//initializing and writing to memory
-	always @ (posedge clk) begin
+	always @ (negedge clk) begin
 		//initialize memory
 		if (rst == 1'b1) begin
 		
 			
 			//TEST !!! - (initialize memory with instructions)
 			//add 1 to r2 (ADDI r2,r2,1)
-			{mem[3], mem[2], mem[1], mem[0]}  <= 32'h00110113;
+			/*{mem[3], mem[2], mem[1], mem[0]}  <= 32'h00110113;
 			//store r2 to mem_map_io (SW r0, r2, 64)
-			{mem[7], mem[6], mem[5], mem[4]} <= 32'h04202023;
+			{mem[7], mem[6], mem[5], mem[4]} <= 32'h04202023;.................*/
 			//jump back to the first instruction (JAL r0, -8)
+			//{mem[11], mem[10], mem[9], mem[8]} <= 32'hFF9FF06F;
+			//{mem[11], mem[10], mem[9], mem[8]} <= 32'h04202023;
+		  {mem[3], mem[2], mem[1], mem[0]} <= 32'h00718193;
+			{mem[7], mem[6], mem[5], mem[4]} <= 32'h04302023;
 			{mem[11], mem[10], mem[9], mem[8]} <= 32'hFF9FF06F;
-			//TEST !!!
+			//{mem[15], mem[14], mem[13], mem[12]} <= 32'h04202023;
+			//TEST!!!
 			
 			
 			//zero out the memory

@@ -1,6 +1,7 @@
 module ir_jump(
     input clk,
     input rst_ir,
+	 input rst,
     input jalr_ir_in,
 	 input jal_ir_in,
     output jalr_ir_out,
@@ -19,6 +20,12 @@ module ir_jump(
 		begin
 			ir_jalr_reg<=0;
 			ir_jal_reg<=0;
+		end
+			
+		else if(rst)
+		begin
+		ir_jalr_reg<=0;
+		ir_jal_reg<=0;
 		end
 		
 		else

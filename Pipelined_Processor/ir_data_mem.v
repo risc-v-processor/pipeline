@@ -1,6 +1,7 @@
 module ir_data_mem(
    input clk,
 	input rst_ir,
+	input rst,
 	input wr_en_ir_in,
 	input [1:0] mem_size_ir_in,
 	input sz_ex_ir_in,
@@ -20,6 +21,13 @@ module ir_data_mem(
    always@(posedge clk)
 	begin
 		if(rst_ir)
+		begin
+			wr_en_reg<=1'b0;
+			mem_size_reg<=2'bx;
+			sz_ex_reg<=1'b0;
+		end
+		
+		else if(rst)
 		begin
 			wr_en_reg<=1'b0;
 			mem_size_reg<=2'bx;

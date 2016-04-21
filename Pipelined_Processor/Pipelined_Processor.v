@@ -20,20 +20,33 @@ module Pipelined_Processor(
 	//outputs
 	//memory mapped I/O
 	output [(`BUS_WIDTH-1):0] mem_map_io_t,
+	
 	//inputs
 	//reset
     input rst_t,
     //clock
     input clk_t
 );
+	
+/*	//Instantiation of PC_0 block
+	wire [(`BUS_WIDTH-1):0] next_addr_t ;
+	wire [(`BUS_WIDTH-1):0] pc_ir0_t ;
+	wire cntl_rst_t;
+	
+	ir_pc_1 ir_pc_0_t(.clk(clk_t),
+							//.rst(rst_t),
+							.rst_ir(cntl_rst_t),
+							.pc_in(next_addr_t),
+							.pc_out(pc_ir0_t));*/
+	
  
 	//Instantiation of PC_BLOCK
-    wire [(`BUS_WIDTH-1):0] next_addr_t ;
+   wire [(`BUS_WIDTH-1):0] next_addr_t ;
     wire [(`BUS_WIDTH-1):0] curr_addr_t ;
 	 
     pc_block  pc_bloc_t ( .rst(rst_t), 
 						  .clk(clk_t) ,
-                          .next_addr(next_addr_t) , 
+                          .next_addr(next_addr_t), 
                           .curr_addr(curr_addr_t) );
 	
 	wire [(`BUS_WIDTH-1):0] pc_ir1_t;
@@ -41,6 +54,7 @@ module Pipelined_Processor(
 	
 	//Instantiation of PC_1 intermediate register
 	ir_pc_1 ir_pc_1_t(.clk(clk_t),
+							//.rst(rst_t),
 							.rst_ir(cntl_rst_t),
 							.pc_in(curr_addr_t),
 							.pc_out(pc_ir1_t));
@@ -49,6 +63,7 @@ module Pipelined_Processor(
 	wire [(`BUS_WIDTH-1):0] pc_ir2_t;
 	
 	ir_pc_1 ir_pc_2_t(.clk(clk_t),
+							//.rst(rst_t),
 							.rst_ir(cntl_rst_t),
 							.pc_in(pc_ir1_t),
 							.pc_out(pc_ir2_t));
@@ -78,6 +93,7 @@ module Pipelined_Processor(
 							.dest(dest_t),
 							.inst_out(inst_out_t),
 							.clk(clk_t),
+							//.rst(rst_t),
 							.rst_ir(cntl_rst_t));
               
   
@@ -89,7 +105,9 @@ module Pipelined_Processor(
 					.val_2(val_2_PC_adder) , 
 					.out(Add_4_Out_t) );
 
-
+	wire [4:0] ir_reg_wr_index_t;
+	wire ir_reg_wr_en_t;
+	
 	//Instantiation of Control Unit 
 	wire [(`ALU_CTRL_WIDTH-1):0] alu_ctrl_t;	
 	wire reg_file_wr_en_t;
@@ -102,7 +120,8 @@ module Pipelined_Processor(
 	wire jalr_t;
 	wire cntl_transfer_t;
 	 
-	ctrl ctrl_t ( .alu_ctrl(alu_ctrl_t),
+	ctrl ctrl_t ( //.rst(rst_t),
+				  .alu_ctrl(alu_ctrl_t),
 				  .reg_file_wr_en(reg_file_wr_en_t),
 				  .reg_file_wr_back_sel(reg_file_wr_back_sel_t),
 				  .alu_op2_sel(alu_op2_sel_t),
@@ -120,33 +139,51 @@ module Pipelined_Processor(
 	wire [(`BUS_WIDTH-1):0] reg_data_1_t;
 	wire [(`BUS_WIDTH-1):0] reg_data_2_t;
 	reg [(`BUS_WIDTH-1):0] wr_reg_data_t;
-	wire [(`REG_INDEX_WIDTH-1):0] rd_reg_index_1_t = inst_out_t[`REG1_MSB :`REG1_LSB] ;
+	wire [(`REGISTER_INDEX_WIDTH-1):0] dest_ir2_t;
+	/*wire [(`REG_INDEX_WIDTH-1):0] rd_reg_index_1_t = inst_out_t[`REG1_MSB :`REG1_LSB] ;
 	wire [(`REG_INDEX_WIDTH-1):0] rd_reg_index_2_t = inst_out_t[`REG2_MSB :`REG2_LSB] ;
-	wire [(`REG_INDEX_WIDTH-1):0] wr_reg_index_t = inst_out_t[`DST_REG_MSB :`DST_REG_LSB] ;
+	wire [(`REG_INDEX_WIDTH-1):0] wr_reg_index_t = inst_out_t[`DST_REG_MSB :`DST_REG_LSB] ;*/
 	 
 	reg_file reg_file_t ( .reg_data_1(reg_data_1_t), 
 						  .reg_data_2(reg_data_2_t),
 						  .rst(rst_t), 
 						  .clk(clk_t), 
-						  .wr_en(reg_file_wr_en_t),
-						  .rd_reg_index_1(rd_reg_index_1_t),
-                          .rd_reg_index_2(rd_reg_index_2_t), 
-                          .wr_reg_index(wr_reg_index_t), 
-                          .wr_reg_data(wr_reg_data_t) );	
+						  .wr_en(ir_reg_wr_en_t),
+						  .rd_reg_index_1(reg1_t),
+                          .rd_reg_index_2(reg2_t), 
+                          .wr_reg_index(ir_reg_wr_index_t), 
+                          .wr_reg_data(wr_reg_data_t));	
 								 
 								 
 	//Instantiation of sign extend module
 	wire [(`BUS_WIDTH - 1):0] sz_ex_val_t ;
 	 
-	sz_ex sz_ex_t ( .inst(inst_t), 
-					.sz_ex_val(sz_ex_val_t) );
+	sz_ex sz_ex_t ( .inst(inst_out_t), 
+					.sz_ex_val(sz_ex_val_t));
 					
+	//Instantiation of Register file Intermediate
+	/*wire [4:0] ir_reg_wr_index_t;
+	wire ir_reg_wr_en_t;*/
+	wire [1:0] reg_file_wr_sel_ir;
+	
+	ir_reg_file ir_reg_file_t(.clk(clk_t),
+									  //.rst(rst_t),
+									  .rst_ir(cntl_rst_t),
+									  .ir_reg_wr_index_in(dest_t),
+									  .ir_reg_wr_en_in(reg_file_wr_en_t),
+									  .ir_reg_data_sel_in(reg_file_wr_back_sel_t),
+									  .ir_reg_wr_index_out(ir_reg_wr_index_t),
+									  .ir_reg_wr_en_out(ir_reg_wr_en_t),
+									  .ir_reg_data_sel_out(reg_file_wr_sel_ir));
+
+		
 	//Instantiation of Jump Intermediate Register
 	wire jalr_ir_t;
 	wire jal_ir_t;
 	
 	ir_jump ir_jump_t(.clk(clk_t),
 							.rst_ir(cntl_rst_t),
+							//.rst(rst_t),
 							.jalr_ir_in(jalr_t),
 							.jal_ir_in(jal_t),
 							.jalr_ir_out(jalr_ir_t),
@@ -160,6 +197,7 @@ module Pipelined_Processor(
 	
 	ir_data_mem ir_data_mem_t(.clk(clk_t),
 									  .rst_ir(cntl_rst_t),
+									  //.rst(rst_t),
 									  .wr_en_ir_in(d_mem_wr_en_t),
 									  .sz_ex_ir_in(d_mem_sz_ex_t),
 									  .mem_size_ir_in(d_mem_size_t),
@@ -177,6 +215,7 @@ module Pipelined_Processor(
 	
 	ir_alu ir_alu_t(.clk(clk_t),
 						 .rst_ir(cntl_rst_t),
+						 //.rst(rst_t),
 						 .alu_ctrl_in(alu_ctrl_t),
 						 .alu_op2_sel_in(alu_op2_sel_t),
 						 .op1_in(reg_data_1_t),
@@ -194,7 +233,7 @@ module Pipelined_Processor(
 	reg [(`BUS_WIDTH-1):0] Operand2_t;
 	
 	always @ (*) begin 
-		case (alu_op2_sel_t)
+		case (alu_op2_ir_t)
 			1'b0 : Operand2_t = reg_data_2_ir_t;
 			1'b1 : Operand2_t = sz_ex_val_ir_t ;
 		endcase
@@ -226,16 +265,19 @@ module Pipelined_Processor(
 	//Implementation of OR gate 2
 	//wire cntl_transfer_t;
 	or or2 (cntl_transfer_t, pc_mux1_sel_t, jalr_ir_t); 
-
+	
 	
 	//Implemantation of pc_mux_1
-	reg [(`BUS_WIDTH-1):0] pc_mux1_Out_t ;
+	reg [(`BUS_WIDTH-1):0] pc_mux1_Out_t;
+	//wire pc_temp;
+	//assign pc_mux1_Out_t=pc_temp;
 	always @ (*) begin
 		case ({jalr_ir_t,pc_mux1_sel_t})
 			2'b00 : pc_mux1_Out_t = Add_4_Out_t;
 			2'b01 : pc_mux1_Out_t = Add_Out_t;
 			2'b10 : pc_mux1_Out_t = ALU_Out_t;
-			default : pc_mux1_Out_t = Add_4_Out_t;
+			default : pc_mux1_Out_t =  Add_4_Out_t;
+
 		endcase
 	end
 
@@ -254,8 +296,6 @@ module Pipelined_Processor(
 	//connect output of pc1 mux to input of PC block	
 	assign next_addr_t = pc_mux1_Out_t;
 	
-	//....................From Here...........................................**********************
-	
 	//Implementation of Data Memory module
 	wire [(`BUS_WIDTH-1):0] d_mem_rd_data_t;
 	
@@ -272,8 +312,8 @@ module Pipelined_Processor(
 
 	//Implementation of 2:4 mux (writeback path to register file) 
 	always @ (*) begin 
-		case(reg_file_wr_back_sel_t)
-			2'b00 :	wr_reg_data_t = ALU_Out_t;
+		case(reg_file_wr_sel_ir)
+			2'b00 : wr_reg_data_t = ALU_Out_t;
 			2'b01 : wr_reg_data_t = d_mem_rd_data_t;
 			2'b10 : wr_reg_data_t = Add_4_Out_t;
 			2'b11 : wr_reg_data_t = Add_Out_t ;

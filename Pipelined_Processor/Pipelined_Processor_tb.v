@@ -1,27 +1,4 @@
 `timescale 1ns / 1ps
-
-////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer:
-//
-// Create Date:   14:44:22 04/19/2016
-// Design Name:   Pipelined_Processor
-// Module Name:   D:/Lemy/Project-8thSem/Code/Pipeline/Pipelined_Processor_tb.v
-// Project Name:  Pipeline
-// Target Device:  
-// Tool versions:  
-// Description: 
-//
-// Verilog Test Fixture created by ISE for module: Pipelined_Processor
-//
-// Dependencies:
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-////////////////////////////////////////////////////////////////////////////////
-
 module Pipelined_Processor_tb;
 
 	// Inputs
@@ -30,10 +7,10 @@ module Pipelined_Processor_tb;
 
 	// Outputs
 	wire [31:0] mem_map_io_t;
-
+	
 	// Instantiate the Unit Under Test (UUT)
 	Pipelined_Processor uut (
-		.mem_map_io_t(mem_map_io_t), 
+		.mem_map_io_t(mem_map_io_t),
 		.rst_t(rst_t), 
 		.clk_t(clk_t)
 	);
@@ -47,9 +24,8 @@ initial begin
         
 		// Add stimulus here
 		$monitor ($time, "\t clk = %b, rst = rst_t = %b, mem_map_io = %d,\t curr_addr_t = %d,\t \
-next_addr_t = %d,\t inst_t = %x,\t pc_mux1_sel_t = %b,\t jalr_t = %b,\t Add_4_Out_t = %d, mem_map_io = %d", 
-clk_t, rst_t, mem_map_io_t, uut.curr_addr_t, uut.next_addr_t, uut.inst_t, uut.pc_mux1_sel_t, 
-uut.jalr_t, uut.Add_4_Out_t, uut.d_mem_t.mem_map_io);
+next_addr_t = %d,\t inst_t = %x,\t pc_mux1_sel_t = %b,\t Add_4_Out_t = %d, mem_map_io = %d", 
+clk_t, rst_t, mem_map_io_t, uut.curr_addr_t, uut.next_addr_t, uut.inst_t, uut.pc_mux1_sel_t, uut.Add_4_Out_t, uut.d_mem_t.mem_map_io);
 		
 		//reset the design
 		rst_t = 1'b1;
@@ -64,7 +40,6 @@ uut.jalr_t, uut.Add_4_Out_t, uut.d_mem_t.mem_map_io);
 
 	always begin
 		//generate clock signal
-		#20 clk_t = !clk_t;
-	end
-	     
+		#5 clk_t = !clk_t;
+	end	     
 endmodule
